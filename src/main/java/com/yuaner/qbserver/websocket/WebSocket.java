@@ -62,7 +62,6 @@ public class WebSocket {
             return;
         }
         User user= BeanUtil.fillBeanWithMap(userMap,new User(),false);
-        UserHolder.saveUser(user);
         this.session = session;
         webSocketMap.put(user.getUserName()+"*"+token, this);
         redisTemplate.expire(tokenToRedisKEY(token),UserString.user_redis_timeout, TimeUnit.MINUTES);
@@ -83,19 +82,28 @@ public class WebSocket {
         }
         String key=tokenToRedisKEY(token);
         //从redis中注销
-        redisTemplate.delete(key);
+        //redisTemplate.delete(key);
         webSocketMap.remove(user.getUserName()+"*"+token);
         log.info("【qqserver消息】连接断开,当前连接总数:"+ webSocketMap.size());
         sendNotice(MessageUtils.sentUserOffline(user.getUserName(),webSocketMap.size()));
     }
     //前端向后端发送消息
     @OnMessage
-    public void onMessage(String message,@PathParam("token") String token) {
+    public void onMessage(String message,@PathParam("token") String token) throws IOException {
         redisTemplate.expire(tokenToRedisKEY(token),UserString.user_redis_timeout, TimeUnit.MINUTES);
         Map<Object,Object> userMap=redisTemplate.opsForHash().entries(tokenToRedisKEY(token));
         User user= BeanUtil.fillBeanWithMap(userMap,new User(),false);
         log.debug("【qqserver消息】收到 "+user.getUserName()+ " 发来的消息:"+message);
-        Message msg=JSONUtil.toBean(message, Message.class);
+        Message msg=null;
+        try {
+            msg=JSONUtil.toBean(message, Message.class);
+            if (msg.getMessage()==null) {
+                throw new RuntimeException("没有消息内容！");
+            }
+        }catch (Exception e){
+            session.getBasicRemote().sendText("error:请检查消息体格式！");
+            return;
+        }
         //判断是否是私聊消息
         if(msg.getTo()!=null){
             sendToOne(msg);
@@ -138,21 +146,6 @@ public class WebSocket {
     public void onError(Throwable error){
         log.debug("【error】:"+ error.getMessage());
     }
-    /**
-     * 暂时弃用，Threadlocal保存不了用户
-     * 向某个客户端发送消息
-     */
-//    public static void sendMessage(Message message, String token) {
-//        WebSocket webSocket = webSocketMap.get(token);
-//        if (webSocket != null) {
-//            try {
-//                webSocket.session.getBasicRemote().sendText(JSONUtil.toJsonStr(message));
-//                log.debug("【qqserver消息】发送消息成功,目标用户="+UserHolder.getUser().getUserName()+",消息内容:"+message.toString());
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 
     public static void sendToOne(Message message){
         for (String s : webSocketMap.keySet()) {

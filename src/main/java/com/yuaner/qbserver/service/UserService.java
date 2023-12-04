@@ -14,4 +14,6 @@ public interface UserService {
     ApiResult loginUserByCode(LoginDTO loginDTO);
 
     ApiResult logout();
+
+    ApiResult listUsers();
 }

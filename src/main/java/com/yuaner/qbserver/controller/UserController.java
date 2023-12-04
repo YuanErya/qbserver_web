@@ -55,5 +55,10 @@ public class UserController {
         return userService.logout();
     }
 
+    @GetMapping("/list/online")
+    public ApiResult listUsers(){
+        return userService.listUsers();
+    }
+
 
 }

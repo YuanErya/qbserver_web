@@ -41,5 +41,17 @@
         SELECT  user_name FROM yuaner_user
     </select>
 
+    <select id="getOnlineUsers" resultType="com.yuaner.qbserver.model.enity.User">
+        SELECT * FROM yuaner_user
+        <where>
+            <if test="users != null and users.size() > 0">
+                AND user_name IN
+                <foreach collection="users" item="user" open="(" separator="," close=")">
+                    #{user}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
 
 </mapper>

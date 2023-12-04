@@ -1,8 +1,10 @@
 package com.yuaner.qbserver.common.common_string;
 
 import com.yuaner.qbserver.model.enity.PostMessage;
+import lombok.Value;
 
 public abstract class SentCodeString {
+
     public final static String username = "email@email.email";
     public final static String password = "email-password";
     public final static String smtp_host = "smtp.qq.com";

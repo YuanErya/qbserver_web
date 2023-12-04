@@ -14,13 +14,13 @@ import com.yuaner.qbserver.model.dto.RegisterDTO;
 import com.yuaner.qbserver.model.enity.SimpleUser;
 import com.yuaner.qbserver.model.enity.User;
 import com.yuaner.qbserver.service.UserService;
+import com.yuaner.qbserver.websocket.WebSocket;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -134,6 +134,23 @@ public class UserServiceImpl implements UserService {
         redisTemplate.delete(key);
         return ApiResult.success("注销成功!");
     }
+
+    @Override
+    public ApiResult listUsers() {
+        Set<String> keys = WebSocket.getWebSocketMap().keySet();
+        System.out.println(keys);
+        List<String> userNames=new ArrayList<>();
+        for (String key : keys) {
+            userNames.add(key.substring(0,key.indexOf("*")));
+        }
+        if (userNames.isEmpty()) {
+            return ApiResult.success("当前没有用户在线!");
+        }
+        List<User> onlineUsers = userMapper.getOnlineUsers(userNames);
+        System.out.println(onlineUsers);
+        return ApiResult.success(onlineUsers);
+    }
+
 
     private String putUserToRedis (User user){
         String k1=UserString.key_keep_alive_user+DigestUtil.md5Hex(UserString.md5_email_salt+user.getUserEmail())+":";

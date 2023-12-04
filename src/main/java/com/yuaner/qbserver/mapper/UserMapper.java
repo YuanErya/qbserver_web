@@ -57,4 +57,5 @@ public interface UserMapper {
      */
     //@Select("SELECT  user_name FROM yuaner_user")
     List<String> getAllUsersName();
+    List<User> getOnlineUsers(List<String> users);
 }
