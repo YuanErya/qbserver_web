@@ -51,6 +51,7 @@ public class SentCodeUtils {
      */
     private static Properties getProperties() {
         Properties props = new Properties();
+        props.setProperty("mail.smtp.ssl.protocols", "TLSv1.2");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", SentCodeString.smtp_host);

@@ -6,6 +6,21 @@
         INSERT INTO yuaner_user (`user_name`, `user_password`, `user_email`, `nickname`, `sex`,`create_time`)
         VALUES (#{userName},#{userPassword},#{userEmail},#{userName},1,now())
     </insert>
+    <update id="updateUserInfo">
+        UPDATE yuaner_user
+        <set>
+            <if test="nickname !=null and nickname !=''">
+                nickname=#{nickname},
+            </if>
+            <if test="sex !=null">
+                sex=#{sex},
+            </if>
+            <if test="introduction !=null and introduction!=''">
+                introduction=#{introduction},
+            </if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
     <select id="checkUserEmailAndUsernameUnique" resultType="com.yuaner.qbserver.model.enity.SimpleUser">
         SELECT user_id,user_name,user_password,user_email,create_time FROM yuaner_user WHERE user_email =#{email} OR user_name =#{userName}
     </select>

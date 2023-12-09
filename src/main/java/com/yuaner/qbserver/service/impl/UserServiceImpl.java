@@ -11,6 +11,7 @@ import com.yuaner.qbserver.common.utils.UserHolder;
 import com.yuaner.qbserver.mapper.UserMapper;
 import com.yuaner.qbserver.model.dto.LoginDTO;
 import com.yuaner.qbserver.model.dto.RegisterDTO;
+import com.yuaner.qbserver.model.dto.UserDTO;
 import com.yuaner.qbserver.model.enity.SimpleUser;
 import com.yuaner.qbserver.model.enity.User;
 import com.yuaner.qbserver.service.UserService;
@@ -42,7 +43,7 @@ public class UserServiceImpl implements UserService {
         if(RegexUtils.isEmailInvalid(registerDTO.getUserEmail())){
             return ApiResult.failed("邮箱格式错误！");
         }
-        if(!userMapper.checkUserEmailAndUsernameUnique(registerDTO.getUserEmail(),registerDTO.getUserName()).isEmpty()){
+        if(registerDTO.getUserName().equals("admin")||registerDTO.getUserName().equals("null")||!userMapper.checkUserEmailAndUsernameUnique(registerDTO.getUserEmail(),registerDTO.getUserName()).isEmpty()){
             return ApiResult.failed("邮箱或用户名已存在！");
         }
         if(!registerDTO.getUserPassword().equals(registerDTO.getUserPasswordAgain())){
@@ -110,6 +111,7 @@ public class UserServiceImpl implements UserService {
         redisTemplate.expire(SentCodeString.get_code_key1+SentCodeString.ID_message_login+
                 SentCodeString.get_code_key2+loginDTO.getUsernameOrEmail(),30,TimeUnit.SECONDS);
         User result=userMapper.getUserByEmail(loginDTO.getUsernameOrEmail());
+        if(result==null)return ApiResult.failed("该账号未注册！");
         String loginInfomation=putUserToRedis(result);
         if(loginInfomation==null){
             return ApiResult.failed("登陆失败,该账号已有"+UserString.user_online_number+"人同时在线!");
@@ -138,7 +140,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public ApiResult listUsers() {
         Set<String> keys = WebSocket.getWebSocketMap().keySet();
-        System.out.println(keys);
         List<String> userNames=new ArrayList<>();
         for (String key : keys) {
             userNames.add(key.substring(0,key.indexOf("*")));
@@ -147,8 +148,20 @@ public class UserServiceImpl implements UserService {
             return ApiResult.success("当前没有用户在线!");
         }
         List<User> onlineUsers = userMapper.getOnlineUsers(userNames);
-        System.out.println(onlineUsers);
         return ApiResult.success(onlineUsers);
+    }
+
+    @Override
+    public ApiResult updateUserInfo(UserDTO userDTO) {
+        if (userDTO.getUserId()==null) {
+            return ApiResult.failed("请校验参数！");
+        }
+        if (!userDTO.getUserId().equals(UserHolder.getUser().getUserId())) {
+            return ApiResult.failed("无权执行此操作！");
+        }
+        int result = userMapper.updateUserInfo(userDTO);
+        if(result>0)return ApiResult.success("修改信息成功！");
+        else return ApiResult.failed("修改信息失败！");
     }
 
 

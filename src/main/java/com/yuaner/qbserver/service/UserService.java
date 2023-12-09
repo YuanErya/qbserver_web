@@ -3,6 +3,7 @@ package com.yuaner.qbserver.service;
 import com.yuaner.qbserver.common.api.ApiResult;
 import com.yuaner.qbserver.model.dto.LoginDTO;
 import com.yuaner.qbserver.model.dto.RegisterDTO;
+import com.yuaner.qbserver.model.dto.UserDTO;
 import com.yuaner.qbserver.model.enity.User;
 
 public interface UserService {
@@ -16,4 +17,6 @@ public interface UserService {
     ApiResult logout();
 
     ApiResult listUsers();
+
+    ApiResult updateUserInfo(UserDTO userDTO);
 }

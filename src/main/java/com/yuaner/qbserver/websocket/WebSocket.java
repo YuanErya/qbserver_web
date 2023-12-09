@@ -18,6 +18,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +58,7 @@ public class WebSocket {
     public void onOpen(Session session, @PathParam("token") String token) throws IOException {
         Map<Object,Object> userMap=redisTemplate.opsForHash().entries(tokenToRedisKEY(token));
         if(userMap.isEmpty()){
-            session.getBasicRemote().sendText("连接失败！请重新登录！");
+            session.getBasicRemote().sendText(JSONUtil.toJsonStr(Message.error("连接失败！请重新登录！")));
             session.close();
             return;
         }
@@ -97,11 +98,12 @@ public class WebSocket {
         Message msg=null;
         try {
             msg=JSONUtil.toBean(message, Message.class);
+            msg.setTime(new Date(System.currentTimeMillis()));
             if (msg.getMessage()==null) {
                 throw new RuntimeException("没有消息内容！");
             }
         }catch (Exception e){
-            session.getBasicRemote().sendText("error:请检查消息体格式！");
+            session.getBasicRemote().sendText(JSONUtil.toJsonStr(Message.error("error:请检查消息体格式！")));
             return;
         }
         //判断是否是私聊消息
@@ -127,7 +129,6 @@ public class WebSocket {
                     log.error("server:连接断开错误!");
                 }
                 webSocketMap.remove(user.getUserName()+"*"+token);
-
             }
         }
         //聊天室只有一个人的时候触发自动回复小精灵
@@ -147,7 +148,7 @@ public class WebSocket {
         log.debug("【error】:"+ error.getMessage());
     }
 
-    public static void sendToOne(Message message){
+    public  void sendToOne(Message message) throws IOException {
         for (String s : webSocketMap.keySet()) {
             //如果私发对象用户在线
             if(s.startsWith(message.getTo())){
@@ -158,6 +159,7 @@ public class WebSocket {
                     throw new RuntimeException(e);
                 }
             }
+            session.getBasicRemote().sendText(JSONUtil.toJsonStr(Message.error("该用户未在线！")));
             //不在线，逻辑还未完成
         }
     }
@@ -175,7 +177,7 @@ public class WebSocket {
                 }
                 log.debug("【qqserver消息】消息转发成功,目标用户:其余全体在线用户，消息内容:"+message.toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
         }
     }
@@ -191,7 +193,7 @@ public class WebSocket {
                 }
                 log.debug("【qqserver消息】发送消息成功,目标用户:全体在线用户，消息内容:"+message.toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
         }
     }
@@ -214,6 +216,7 @@ public class WebSocket {
      */
     public static User getUserByToken(String token){
         Map<Object,Object> userMap=redisTemplate.opsForHash().entries(tokenToRedisKEY(token));
+        if(userMap.isEmpty())return null;
         return  BeanUtil.fillBeanWithMap(userMap,new User(),false);
     }
 }

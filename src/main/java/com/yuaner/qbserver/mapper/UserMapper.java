@@ -1,6 +1,7 @@
 package com.yuaner.qbserver.mapper;
 
 
+import com.yuaner.qbserver.model.dto.UserDTO;
 import com.yuaner.qbserver.model.enity.SimpleUser;
 import com.yuaner.qbserver.model.enity.User;
 import org.apache.ibatis.annotations.Mapper;
@@ -36,12 +37,7 @@ public interface UserMapper {
     //@Options(useGeneratedKeys = true,keyProperty = "userId")
     Boolean addUser(SimpleUser user);
 
-
-    //@Insert("INSERT  INTO yuaner_user_info (user_id,user_nickname,user_introduction,user_sex,update_time) VALUES(#{userId},#{userNickname},#{userIntroduction},#{userSex},#{updateTime})")
-    //@Options(useGeneratedKeys = true,keyProperty = "userInfoId")
-    Boolean addUserInfo(User user);
-
-
+    int updateUserInfo(UserDTO userDTO);
     /**
      * 校验邮箱和用户名是否唯一
      * @param email

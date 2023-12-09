@@ -10,7 +10,7 @@ public class MessageUtils {
      * @return
      */
     public static Message sentUserOnline(String username, Integer onlineNum){
-        return new Message(null,null,"来自【系统】的消息:欢迎 "+username+" 加入聊天室！"+"当前在线人数"+onlineNum+"\n"
+        return new Message(null,"admin","来自【系统】的消息:欢迎 "+username+" 加入聊天室！"+"当前在线人数"+onlineNum+"\n"
                 +"可以通过发送/help 指令获取聊天室指南哟！");
     }
     /**
@@ -20,7 +20,7 @@ public class MessageUtils {
      * @return
      */
     public static Message sentUserOffline(String username, Integer onlineNum){
-        return new Message(null,null,"来自【系统】的消息:"+username+" 下线了。"+"当前在线人数:"+onlineNum);
+        return new Message(null,"admin","来自【系统】的消息:"+username+" 下线了。"+"当前在线人数:"+onlineNum);
     }
 
     /**
@@ -47,7 +47,7 @@ public class MessageUtils {
         if(result.equals("词库不匹配")){
             result="小精灵听不懂你在说什么。。。";
         }
-        return new Message(null,null,"来自【小精灵（系统）】的消息:\n"+result);
+        return new Message(null,"admin","来自【小精灵（系统）】的消息:\n"+result);
     }
 
     /**

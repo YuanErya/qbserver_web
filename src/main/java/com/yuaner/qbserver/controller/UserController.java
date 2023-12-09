@@ -4,9 +4,11 @@ package com.yuaner.qbserver.controller;
 import com.yuaner.qbserver.common.api.ApiResult;
 import com.yuaner.qbserver.model.dto.LoginDTO;
 import com.yuaner.qbserver.model.dto.RegisterDTO;
+import com.yuaner.qbserver.model.dto.UserDTO;
 import com.yuaner.qbserver.model.enity.User;
 import com.yuaner.qbserver.service.UserService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 
@@ -55,9 +57,24 @@ public class UserController {
         return userService.logout();
     }
 
+    /**
+     * 查询当前在线的人员列表
+     * @return
+     */
+
     @GetMapping("/list/online")
     public ApiResult listUsers(){
         return userService.listUsers();
+    }
+
+    @PostMapping("/info/update")
+    public ApiResult updateUserInfo(@RequestBody UserDTO userDTO){
+        return userService.updateUserInfo(userDTO);
+    }
+
+    @PostMapping("/avatar/upload")
+    public ApiResult uploadAvatar(@RequestPart("avatar")MultipartFile avatar){
+        return ApiResult.success("修改头像成功！");
     }
 
 
