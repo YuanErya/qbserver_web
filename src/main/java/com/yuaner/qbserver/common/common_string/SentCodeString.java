@@ -5,8 +5,8 @@ import lombok.Value;
 
 public abstract class SentCodeString {
 
-    public final static String username = "yuaner_code_sent@foxmail.com";
-    public final static String password = "rutajgvmuebicaci";
+    public final static String username = "";
+    public final static String password = "";
     public final static String smtp_host = "smtp.qq.com";
     public final static String smtp_port = "587";
     //数据库模板中使用的占位符
