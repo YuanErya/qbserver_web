@@ -40,5 +40,3 @@ public class ConstantString {
 ## 联系方式
 
 如果有兴趣了解这个小demo也可以联系我
-
-qq:1508014225
